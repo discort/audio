@@ -252,6 +252,7 @@ def train_one_epoch(
     clip_grad,
     disable_logger=False,
     reduce_lr_on_plateau=False,
+    log_steps=100,
 ):
 
     model.train()
@@ -288,7 +289,8 @@ def train_one_epoch(
 
         optimizer.step()
 
-        compute_error_rates(outputs, targets, decoder, language_model, metric)
+        if metric["iteration"] % log_steps == 0:
+            compute_error_rates(outputs, targets, decoder, language_model, metric)
 
         try:
             metric["lr"] = scheduler.get_last_lr()[0]
@@ -525,7 +527,7 @@ def main(rank, args):
 
     loader_training_params = {
         "num_workers": args.workers,
-        "pin_memory": True,
+        #"pin_memory": True,
         "shuffle": True,
         "drop_last": True,
     }

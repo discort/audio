@@ -27,7 +27,8 @@ class MapMemoryCache(torch.utils.data.Dataset):
 class Processed(torch.utils.data.Dataset):
     def __init__(self, dataset, transforms, encode):
         self.dataset = dataset
-        self.transforms = transforms
+        self.device = torch.device('cuda' if torch.cuda.is_available() else "cpu")
+        self.transforms = transforms.to(self.device)
         self.encode = encode
 
     def __getitem__(self, key):
@@ -38,7 +39,7 @@ class Processed(torch.utils.data.Dataset):
         return len(self.dataset)
 
     def process_datapoint(self, item):
-        transformed = item[0]
+        transformed = item[0].to(self.device)
         target = item[2].lower()
 
         transformed = self.transforms(transformed)
